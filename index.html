@@ -1,708 +1,666 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>股票交易管理系統（完整版）</title>
-<!-- SheetJS -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>
-:root{
-  --tiffany:#81d8d0;
-  --tiffany-dark:#58c6bf;
-  --bg:#f7f9f8;
-  --card:#ffffff;
-  --muted:#666;
-  --accent:#053f3f;
-  --green:#0a8f3e;
-  --red:#c92a2a;
-}
-*{box-sizing:border-box}
-body{font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","Helvetica Neue",Arial; background:var(--bg); margin:0; padding:18px; color:var(--accent)}
-.container{max-width:1200px;margin:0 auto}
-h1{margin:6px 0 14px 0}
-.card{background:var(--card); border-radius:12px; padding:12px; box-shadow:0 6px 18px rgba(10,30,30,0.06); margin-bottom:14px}
-.row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-label{font-size:13px; color:var(--muted); margin-right:6px}
-input[type="text"], input[type="number"], select, input[type="date"], input[type="file"]{
-  padding:8px 10px; border-radius:8px; border:1px solid #e0e7e7;
-}
-button{background:var(--tiffany); border:none; padding:8px 12px; border-radius:10px; cursor:pointer; color:#023233; font-weight:600}
-button:hover{background:var(--tiffany-dark)}
-.table{width:100%; border-collapse:collapse; margin-top:10px; font-size:13px}
-.table th, .table td{border:1px solid #e6efef; padding:8px; text-align:center}
-.table th{background:linear-gradient(90deg, rgba(129,216,208,0.12), rgba(88,198,191,0.06)); color:var(--accent)}
-.tr-buy{background:#e6f8ec}
-.tr-sell{background:#ffecec}
-.small{font-size:13px;color:var(--muted)}
-.right{text-align:right}
-.badge{display:inline-block;padding:4px 8px;border-radius:8px;background:#f0f7f6;color:var(--muted);font-size:12px}
-.profit{color:var(--green);font-weight:700}
-.loss{color:var(--red);font-weight:700}
-.inv-table{width:100%;border-collapse:collapse;margin-top:10px}
-.inv-table th, .inv-table td{border:1px solid #d9f0ee;padding:8px;text-align:center}
-.btn-danger{background:#ff7b7b;color:white}
-.btn-small{padding:6px 8px;font-size:13px;border-radius:8px}
-@media (max-width:900px){
-  .row{flex-direction:column;align-items:stretch}
-  input[type="text"], input[type="number"], select{width:100%}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票買賣記錄管理系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        
+        .btn-edit:hover {
+            background: #d97706;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .broker-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .broker-info {
+            flex: 1;
+        }
+        
+        .broker-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .broker-fee {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .firebase-config {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ffc107;
+        }
+        
+        .firebase-config h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .firebase-config p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <h1>股票交易管理系統（完整版）</h1>
-
-  <div class="card">
-    <h2>1. 全域設定 / 券商維護</h2>
-    <div class="row">
-      <label>手續費率(%)（輸入 0.1425 表示 0.1425%）</label>
-      <input id="feeRate" type="number" step="0.0001" value="0.1425">
-      <label>交易稅率(%)（輸入 0.30 表示 0.30%）</label>
-      <input id="taxRate" type="number" step="0.01" value="0.30">
-      <label>每張股數</label>
-      <input id="lotSize" type="number" step="1" value="1000">
-      <button onclick="saveSettings()">儲存設定</button>
+    <div class="container">
+        <div class="header">
+            <h1>📈 股票買賣記錄管理系統</h1>
+            <p>Firebase 雲端即時同步</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('records')">交易記錄</button>
+            <button class="tab" onclick="switchTab('brokers')">券商管理</button>
+        </div>
+        
+        <!-- 交易記錄 Tab -->
+        <div id="records" class="tab-content active">
+            <div class="firebase-config">
+                <h3>🔧 Firebase 設定說明</h3>
+                <p>請在下方的 Firebase 配置區域填入您的 Firebase 專案設定。您可以在 Firebase Console 中找到這些資訊。</p>
+            </div>
+            
+            <div class="alert" id="recordAlert"></div>
+            
+            <h2 style="margin-bottom: 20px;">新增/編輯交易記錄</h2>
+            <form id="recordForm">
+                <input type="hidden" id="recordId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>券商</label>
+                        <select id="brokerSelect" required>
+                            <option value="">請選擇券商</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>股票代碼</label>
+                        <input type="text" id="stockCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label>股票名稱</label>
+                        <input type="text" id="stockName" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>交易類型</label>
+                        <select id="tradeType" required>
+                            <option value="BUY">買入</option>
+                            <option value="SELL">賣出</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>價格</label>
+                        <input type="number" id="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>數量 (張)</label>
+                        <input type="number" id="quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label>交易日期</label>
+                        <input type="date" id="tradeDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>總成本 (自動計算)</label>
+                    <input type="number" id="totalCost" step="0.01" readonly style="background: #f5f5f5;">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">儲存記錄</button>
+                <button type="button" class="btn btn-success" onclick="cancelEdit()" style="display: none;" id="cancelBtn">取消編輯</button>
+            </form>
+            
+            <h2 style="margin-top: 40px; margin-bottom: 20px;">交易記錄列表</h2>
+            <table id="recordsTable">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>券商</th>
+                        <th>股票</th>
+                        <th>類型</th>
+                        <th>價格</th>
+                        <th>數量</th>
+                        <th>手續費</th>
+                        <th>總成本</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 券商管理 Tab -->
+        <div id="brokers" class="tab-content">
+            <div class="alert" id="brokerAlert"></div>
+            
+            <h2 style="margin-bottom: 20px;">新增/編輯券商</h2>
+            <form id="brokerForm">
+                <input type="hidden" id="brokerId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>券商名稱</label>
+                        <input type="text" id="brokerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>手續費率 (%)</label>
+                        <input type="number" id="feeRate" step="0.001" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">儲存券商</button>
+                <button type="button" class="btn btn-success" onclick="cancelBrokerEdit()" style="display: none;" id="cancelBrokerBtn">取消編輯</button>
+            </form>
+            
+            <h2 style="margin-top: 40px; margin-bottom: 20px;">券商列表</h2>
+            <div id="brokersList"></div>
+        </div>
     </div>
 
-    <div style="height:8px"></div>
-    <div class="row">
-      <input id="newBrokerName" placeholder="券商名稱" type="text">
-      <input id="newBrokerDiscount" placeholder="折扣 (%) 例如 20" type="number" step="0.01">
-      <button onclick="addBroker()">新增券商</button>
-      <div class="small" style="margin-left:10px">折扣示例：輸入 20 表示 20%（手續費乘以 1-0.20）</div>
-    </div>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, set, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-    <table class="table" id="brokerTable">
-      <thead><tr><th>券商名稱</th><th>折扣(%)</th><th>操作</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>2. 交易紀錄（可手動、新增 / Excel 匯入 / JSON 匯入）</h2>
-
-    <div class="row">
-      <label>券商</label>
-      <select id="tradeBroker"></select>
-      <label>日期</label>
-      <input id="tradeDate" type="date">
-      <label>買/賣</label>
-      <select id="tradeSide"><option value="BUY">買進</option><option value="SELL">賣出</option></select>
-      <label>股票代碼</label>
-      <input id="tradeCode" type="text" placeholder="例：2330">
-      <label>股票名稱</label>
-      <input id="tradeName" type="text" placeholder="可手動輸入">
-      <label>成交價</label>
-      <input id="tradePrice" type="number" step="0.01">
-      <label>張數</label>
-      <input id="tradeLots" type="number" step="1" value="1">
-      <button onclick="addTrade()">新增交易</button>
-    </div>
-
-    <div class="row" style="margin-top:8px">
-      <div class="small">匯入 Excel (.xlsx)：欄位建議標題（券商名稱, 交易日期, 買/賣, 股票代碼, 股票名稱, 成交價格, 張數）</div>
-      <input type="file" id="xlsxImport" accept=".xlsx" onchange="handleXlsxFile(event)">
-      <label>匯入模式</label>
-      <select id="importMode"><option value="append">附加</option><option value="replace">清空後新增</option></select>
-      <div style="flex:1"></div>
-      <div class="small">或 匯入 JSON：</div>
-      <input type="file" id="jsonImport" accept=".json" onchange="importJSONFile(event)">
-      <button onclick="exportJSON()">匯出 JSON</button>
-      <button onclick="exportXLSX()">匯出 Excel</button>
-    </div>
-
-    <table class="table" id="tradeTable">
-      <thead><tr>
-        <th>序號</th><th>券商</th><th>日期</th><th>買/賣</th><th>代碼</th><th>名稱</th><th>價格</th><th>張數</th>
-        <th>成本</th><th>手續費</th><th>交易稅</th><th>最終成本</th><th>操作</th>
-      </tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>3. 損益查詢（以 券商+股票 分組）</h2>
-    <div class="row">
-      <label>模式</label>
-      <button onclick="calcAll('FIFO')">FIFO（先進先出）</button>
-      <button onclick="calcAll('LIFO')">LIFO（後進先出）</button>
-      <label style="margin-left:12px">查詢代碼(空白=全部)</label>
-      <input id="queryCode" type="text" placeholder="2330">
-    </div>
-
-    <div id="analysisContainer" style="margin-top:12px"></div>
-
-    <h3 style="margin-top:12px">庫存均價（依 券商 + 股票）</h3>
-    <div id="inventoryContainer"></div>
-  </div>
-
-  <div class="small" style="text-align:center;margin-top:8px;color:var(--muted)">
-    資料保存在此瀏覽器 localStorage；請定期匯出 JSON / Excel 做備份。
-  </div>
-</div>
-
-<script>
-/* ---------- State & Storage ---------- */
-const STORAGE_KEY = 'stock_app_complete_v2';
-let state = {
-  brokers: [], // {name, discountPercent}
-  trades: [],  // {id, brokerName, date, side 'BUY'/'SELL', code, name, price, lots, shares, costNoFee, fee, tax, totalCost}
-  settings: { feeRatePct: 0.1425, taxRatePct: 0.30, lotSize: 1000 },
-  lastCalc: { perGroup: [], combined: [], inventory: [] }
-};
-
-function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-function loadState(){ const r = localStorage.getItem(STORAGE_KEY); if(r) state = JSON.parse(r); renderAll(); }
-function uid(pref='id'){ return pref + '_' + Math.random().toString(36).slice(2,9); }
-function timestamp(){ const d=new Date(); const p=(n)=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
-
-/* ---------- Formatting ---------- */
-function fmtInt(n){ if(n===null||n===undefined||isNaN(n)) return '-'; return Number(Math.round(n)).toLocaleString('en-US'); }
-function fmtNum2(n){ if(n===null||n===undefined||isNaN(n)) return '-'; return Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-
-/* ---------- Date helpers ---------- */
-function excelSerialToYYYYMMDD(serial){
-  // if numeric -> Excel serial (1900 system)
-  if(typeof serial === 'number'){
-    const ms = (serial - 25569) * 86400 * 1000;
-    const d = new Date(ms);
-    // fix timezone offset
-    const tz = d.getTimezoneOffset();
-    d.setMinutes(d.getMinutes() + tz);
-    const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
-    return `${y}-${m}-${dd}`;
-  }
-  if(serial instanceof Date){
-    const y = serial.getFullYear(), m = String(serial.getMonth()+1).padStart(2,'0'), dd = String(serial.getDate()).padStart(2,'0');
-    return `${y}-${m}-${dd}`;
-  }
-  // try parse string
-  const s = String(serial).trim();
-  const parsed = new Date(s);
-  if(!isNaN(parsed)) {
-    return `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}-${String(parsed.getDate()).padStart(2,'0')}`;
-  }
-  // fallback: return string unchanged
-  return s;
-}
-
-function normalizeDateValue(v){
-  if(v===null || v===undefined || v==='') return '';
-  return excelSerialToYYYYMMDD(v);
-}
-
-/* ---------- Render ---------- */
-function renderAll(){
-  renderSettings();
-  renderBrokers();
-  renderTrades();
-  renderLastCalc();
-}
-function renderSettings(){
-  document.getElementById('feeRate').value = Number(state.settings.feeRatePct).toFixed(4);
-  document.getElementById('taxRate').value = Number(state.settings.taxRatePct).toFixed(2);
-  document.getElementById('lotSize').value = state.settings.lotSize;
-}
-function renderBrokers(){
-  const tbody = document.querySelector('#brokerTable tbody'); tbody.innerHTML='';
-  state.brokers.forEach((b, idx)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${escapeHtml(b.name)}</td><td>${Number(b.discountPercent).toFixed(2)}</td>
-      <td><button class="btn-small" onclick="editBroker(${idx})">編輯</button> <button class="btn-small btn-danger" onclick="deleteBroker(${idx})">刪除</button></td>`;
-    tbody.appendChild(tr);
-  });
-  const sel = document.getElementById('tradeBroker'); sel.innerHTML='';
-  state.brokers.forEach(b=>{ const opt=document.createElement('option'); opt.value=b.name; opt.text=b.name; sel.appendChild(opt); });
-}
-function renderTrades(){
-  const tbody = document.querySelector('#tradeTable tbody'); tbody.innerHTML='';
-  state.trades.forEach((t, idx)=>{
-    const tr = document.createElement('tr');
-    tr.className = t.side === 'BUY' ? 'tr-buy' : 'tr-sell';
-    tr.innerHTML = `<td>${idx+1}</td>
-      <td>${escapeHtml(t.brokerName)}</td>
-      <td>${escapeHtml(t.date)}</td>
-      <td>${t.side === 'BUY' ? '買進' : '賣出'}</td>
-      <td>${escapeHtml(t.code)}</td>
-      <td>${escapeHtml(t.name||'')}</td>
-      <td class="right">${fmtNum2(t.price)}</td>
-      <td class="right">${t.lots}</td>
-      <td class="right">${fmtInt(t.costNoFee)}</td>
-      <td class="right">${fmtInt(t.fee)}</td>
-      <td class="right">${fmtInt(t.tax)}</td>
-      <td class="right">${fmtInt(t.totalCost)}</td>
-      <td>
-        <button class="btn-small" onclick="editTrade('${t.id}')">編輯</button>
-        <button class="btn-small btn-danger" onclick="deleteTrade('${t.id}')">刪除</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-/* ---------- Utilities ---------- */
-function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function findBrokerByName(name){ return state.brokers.find(b=>b.name === name); }
-
-/* ---------- Broker CRUD ---------- */
-function addBroker(){
-  const name = document.getElementById('newBrokerName').value.trim();
-  const disc = Number(document.getElementById('newBrokerDiscount').value || 0);
-  if(!name){ alert('請輸入券商名稱'); return; }
-  state.brokers.push({ name, discountPercent: isNaN(disc)?0:disc });
-  saveState(); renderAll();
-  document.getElementById('newBrokerName').value=''; document.getElementById('newBrokerDiscount').value='';
-}
-function editBroker(idx){
-  const b = state.brokers[idx];
-  const newName = prompt('券商名稱', b.name); if(newName===null) return;
-  const newDisc = prompt('折扣 (%) 例如 20', b.discountPercent); if(newDisc===null) return;
-  b.name = newName.trim(); b.discountPercent = Number(newDisc) || 0;
-  saveState(); renderAll();
-}
-function deleteBroker(idx){
-  if(!confirm('確定刪除此券商？（已存在的交易不會被移除）')) return;
-  state.brokers.splice(idx,1);
-  saveState(); renderAll();
-}
-
-/* ---------- Settings ---------- */
-function saveSettings(){
-  const f = Number(document.getElementById('feeRate').value || 0);
-  const t = Number(document.getElementById('taxRate').value || 0);
-  const l = Number(document.getElementById('lotSize').value || 1000);
-  state.settings.feeRatePct = isNaN(f)?0:f;
-  state.settings.taxRatePct = isNaN(t)?0:t;
-  state.settings.lotSize = isNaN(l)?1000:l;
-  saveState(); alert('已儲存設定'); renderAll();
-}
-
-/* ---------- Trade CRUD & recalc ---------- */
-function recalcTradeFields(t){
-  const lotSize = Number(state.settings.lotSize || 1000);
-  const feeRatePct = Number(state.settings.feeRatePct || 0); // e.g. 0.1425 as percent units
-  const taxRatePct = Number(state.settings.taxRatePct || 0);
-  const broker = findBrokerByName(t.brokerName);
-  const brokerDisc = broker ? (Number(broker.discountPercent || 0) / 100) : 0;
-  const effFeeRate = (feeRatePct / 100) * (1 - brokerDisc); // decimal fraction
-  const taxRate = (taxRatePct / 100);
-  const shares = (t.lots || 0) * lotSize;
-  const costNoFee = (t.price || 0) * shares;
-  const fee = costNoFee * effFeeRate;
-  const tax = (t.side === 'SELL') ? Math.max(costNoFee * taxRate, 20) : 0;
-  const totalCost = (t.side === 'BUY') ? costNoFee + fee : costNoFee - fee - tax;
-  t.shares = shares;
-  t.costNoFee = costNoFee;
-  t.fee = fee;
-  t.tax = tax;
-  t.totalCost = totalCost;
-}
-
-function addTrade(){
-  const brokerName = document.getElementById('tradeBroker').value;
-  const dateRaw = document.getElementById('tradeDate').value;
-  const side = document.getElementById('tradeSide').value;
-  const code = document.getElementById('tradeCode').value.trim();
-  const name = document.getElementById('tradeName').value.trim();
-  const price = Number(document.getElementById('tradePrice').value || 0);
-  const lots = Number(document.getElementById('tradeLots').value || 0);
-  if(!brokerName || !dateRaw || !code || lots <= 0){ alert('請確認券商、日期、股票代碼及張數'); return; }
-  const date = normalizeDateValue(dateRaw);
-  const t = { id: uid('t'), brokerName, date, side, code, name, price, lots };
-  recalcTradeFields(t);
-  state.trades.push(t);
-  saveState(); renderAll();
-}
-
-function editTrade(id){
-  const t = state.trades.find(x=>x.id===id); if(!t) return;
-  const brokerName = prompt('券商', t.brokerName); if(brokerName===null) return;
-  const dateRaw = prompt('日期 (YYYY-MM-DD)', t.date); if(dateRaw===null) return;
-  const side = prompt('BUY 或 SELL', t.side); if(side===null) return;
-  const code = prompt('股票代碼', t.code); if(code===null) return;
-  const name = prompt('股票名稱', t.name || ''); if(name===null) return;
-  const price = prompt('價格', t.price); if(price===null) return;
-  const lots = prompt('張數', t.lots); if(lots===null) return;
-
-  t.brokerName = brokerName.trim();
-  t.date = normalizeDateValue(dateRaw);
-  t.side = (String(side).toUpperCase().includes('SELL') ? 'SELL' : 'BUY');
-  t.code = code.trim();
-  t.name = name.trim();
-  t.price = Number(price);
-  t.lots = Number(lots);
-  recalcTradeFields(t);
-  saveState(); renderAll();
-}
-
-function deleteTrade(id){
-  if(!confirm('確定刪除此筆交易？')) return;
-  state.trades = state.trades.filter(x=>x.id!==id);
-  saveState(); renderAll();
-}
-
-/* ---------- Excel Import (improved) ---------- */
-const REQUIRED_COLS = ['券商名稱','交易日期','買/賣','股票代碼','股票名稱','成交價格','張數'];
-function handleXlsxFile(evt){
-  const file = evt.target.files[0];
-  if(!file) return;
-  const mode = document.getElementById('importMode').value;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const data = new Uint8Array(e.target.result);
-      const wb = XLSX.read(data, { type:'array', cellDates:true });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, {defval: '' , raw: true});
-      if(rows.length === 0){ alert('Excel 無資料'); return; }
-      const keys = Object.keys(rows[0]);
-      // map columns: allow small variations
-      const map = {};
-      const mappingCandidates = {
-        '券商名稱':['券商名稱','broker','券商'],
-        '交易日期':['交易日期','date','交易日','日期'],
-        '買/賣':['買/賣','side','買賣','type'],
-        '股票代碼':['股票代碼','code','代碼','stockcode'],
-        '股票名稱':['股票名稱','name','名稱','stockname'],
-        '成交價格':['成交價格','price','價格'],
-        '張數':['張數','lots','數量','qty']
-      };
-      for(const k in mappingCandidates){
-        const cands = mappingCandidates[k];
-        let found = null;
-        for(const cand of cands){
-          const f = keys.find(x=>String(x).trim().toLowerCase() === cand.toLowerCase());
-          if(f){ found = f; break; }
-        }
-        if(!found){
-          // try contains
-          found = keys.find(x=>String(x).toLowerCase().includes(cands[0].replace(/[^\w\u4e00-\u9fff]/g,'').toLowerCase()));
-        }
-        map[k] = found;
-      }
-      // verify
-      for(const k of Object.keys(map)){
-        if(!map[k]){ alert('找不到必要欄位：' + k + '（請檢查 Excel 欄名）'); return; }
-      }
-      if(mode === 'replace') state.trades = [];
-      let added = 0;
-      for(const r of rows){
-        const brokerVal = r[map['券商名稱']];
-        const rawDate = r[map['交易日期']];
-        const sideRaw = r[map['買/賣']];
-        const codeVal = String(r[map['股票代碼']]||'').trim();
-        const nameVal = String(r[map['股票名稱']]||'').trim();
-        const priceVal = r[map['成交價格']];
-        const lotsVal = r[map['張數']];
-        if(!brokerVal || !rawDate || !codeVal || !nameVal) continue;
-        const sideStr = String(sideRaw).toUpperCase();
-        const side = (sideStr.includes('SELL') || sideStr.includes('賣')) ? 'SELL' : 'BUY';
-        const dateNorm = normalizeDateValue(rawDate);
-        const price = Number(priceVal) || 0;
-        const lots = Number(lotsVal) || 0;
-        if(lots <= 0) continue;
-        const t = { id: uid('t'), brokerName: String(brokerVal), date: dateNorm, side, code: codeVal, name: nameVal, price, lots };
-        recalcTradeFields(t);
-        state.trades.push(t); added++;
-      }
-      saveState(); renderAll();
-      alert(`匯入完成：新增 ${added} 筆交易（模式：${mode}）`);
-    }catch(err){
-      console.error(err); alert('Excel 讀取失敗：' + err.message);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-  evt.target.value = '';
-}
-
-/* ---------- JSON import/export ---------- */
-function importJSONFile(evt){
-  const file = evt.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    try{
-      const obj = JSON.parse(e.target.result);
-      state.brokers = obj.brokers || state.brokers;
-      if(obj.settings) state.settings = obj.settings;
-      state.trades = (obj.trades || []).map(t=>{
-        t.id = t.id || uid('t');
-        t.date = normalizeDateValue(t.date);
-        recalcTradeFields(t);
-        return t;
-      });
-      if(obj.lastCalc) state.lastCalc = obj.lastCalc;
-      saveState(); renderAll(); alert('JSON 匯入完成');
-    }catch(err){ alert('JSON 匯入失敗：' + err.message); }
-  };
-  reader.readAsText(file);
-  evt.target.value = '';
-}
-
-function exportJSON(){
-  // ensure lastCalc up-to-date (default FIFO)
-  if(!state.lastCalc || !state.lastCalc.perGroup || state.lastCalc.perGroup.length===0){
-    state.lastCalc = calcPnLInternal('', false, 'FIFO');
-  }
-  const payload = {
-    brokers: state.brokers,
-    settings: state.settings,
-    trades: state.trades,
-    lastCalc: state.lastCalc,
-    exportedAt: (new Date()).toISOString()
-  };
-  const filename = `StockRecords_${timestamp()}.json`;
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
-}
-
-/* ---------- Excel export ---------- */
-function exportXLSX(){
-  const sheet = [['券商','日期','買/賣','股票代碼','股票名稱','價格','張數','成本','手續費','交易稅','總成本']];
-  state.trades.forEach(t=>{
-    sheet.push([t.brokerName, t.date, t.side==='BUY'?'買':'賣', t.code, t.name, t.price, t.lots, Math.round(t.costNoFee), Math.round(t.fee), Math.round(t.tax), Math.round(t.totalCost)]);
-  });
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(sheet);
-  XLSX.utils.book_append_sheet(wb, ws, 'Trades');
-  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array'});
-  const blob = new Blob([wbout], {type:'application/octet-stream'});
-  const filename = `StockRecords_${timestamp()}.xlsx`;
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
-}
-
-/* ---------- PnL & Inventory calculation (core) ---------- */
-function calcAll(mode){
-  const q = document.getElementById('queryCode').value.trim();
-  const res = calcPnLInternal(q, false, mode || 'FIFO');
-  state.lastCalc = res;
-  saveState();
-  renderAnalysisDisplay(res, mode);
-  renderInventoryTable(res.inventory);
-}
-
-function calcPnLInternal(queryCode='', forExport=false, forcedMode){
-  const mode = forcedMode || 'FIFO';
-  const groups = {};
-  const sorted = state.trades.slice().map((t, idx)=> ({...t, __seq: idx+1})).sort((a,b)=> new Date(a.date) - new Date(b.date));
-  sorted.forEach(t=>{
-    if(queryCode && t.code !== queryCode) return;
-    const key = `${t.brokerName}__${t.code}`;
-    if(!groups[key]) groups[key] = { brokerName: t.brokerName, code: t.code, list: [] };
-    groups[key].list.push(Object.assign({}, t));
-  });
-
-  const perGroup = [];
-  const combinedMap = {};
-  const inventory = [];
-
-  Object.keys(groups).forEach(key=>{
-    const grp = groups[key];
-    const broker = findBrokerByName(grp.brokerName);
-    const feeRatePct = state.settings.feeRatePct; // e.g. 0.1425
-    const taxRatePct = state.settings.taxRatePct;
-    const lotSize = Number(state.settings.lotSize || 1000);
-    const brokerDisc = broker ? (Number(broker.discountPercent || 0) / 100) : 0;
-    const feeRateEff = (feeRatePct/100) * (1 - brokerDisc);
-    const taxRate = (taxRatePct/100);
-
-    grp.list.sort((a,b)=> new Date(a.date) - new Date(b.date));
-
-    // buyStack: array of lots { seq, remainShares, sharesTotal, totalCostIncludesFees, price, date }
-    let buyStack = [];
-    let realized = 0;
-    const details = []; // will be array of detail rows
-    const mappingRows = []; // mapping between sell seq and buy seqs with details
-
-    for(const tx of grp.list){
-      const shares = tx.lots * lotSize;
-      const costNoFee = tx.price * shares;
-      const buyFee = (tx.side === 'BUY') ? (costNoFee * feeRateEff) : 0;
-      const sellFee = (tx.side === 'SELL') ? (costNoFee * feeRateEff) : 0;
-      const sellTax = (tx.side === 'SELL') ? Math.max(costNoFee * taxRate, 20) : 0;
-
-      if(tx.side === 'BUY'){
-        const lot = {
-          seq: tx.__seq,
-          sharesTotal: shares,
-          remain: shares,
-          totalCostIncludesFees: costNoFee + buyFee,
-          price: tx.price,
-          date: tx.date
+        // Firebase 配置 - 請替換為您的 Firebase 專案配置
+        const firebaseConfig = {
+        apiKey: "AIzaSyCWSugdl4Tw6BRDTqYBQA5iLugmtThfUTw",
+        authDomain: "usefullcalcus.firebaseapp.com",
+        projectId: "usefullcalcus",
+        storageBucket: "usefullcalcus.firebasestorage.app",
+        messagingSenderId: "408675373927",
+        appId: "1:408675373927:web:e3222fe9dfce16ed3955c2",
+        measurementId: "G-T475LV4JMY"
         };
-        buyStack.push(lot);
-        details.push({ type: 'BUY', seq: tx.__seq, date: tx.date, price: tx.price, shares: shares, totalCost: lot.totalCostIncludesFees });
-      } else {
-        let need = shares;
-        const sellMapping = { sellSeq: tx.__seq, sellDate: tx.date, sellPrice: tx.price, sellShares: shares, pairs: [], sellFeeTotal: sellFee, sellTaxTotal: sellTax, realizedForThisSell: 0 };
-        details.push({ type: 'SELL', seq: tx.__seq, date: tx.date, price: tx.price, shares: shares });
-        while(need > 0 && buyStack.length > 0){
-          const idx = (mode === 'FIFO') ? 0 : (buyStack.length - 1);
-          const lot = buyStack[idx];
-          const use = Math.min(need, lot.remain);
-          const allocCost = lot.totalCostIncludesFees * (use / lot.sharesTotal);
-          const sellProceeds = tx.price * use;
-          const sellFeePortion = sellFee * (use / shares);
-          const sellTaxPortion = sellTax * (use / shares);
-          const realizedPortion = sellProceeds - sellFeePortion - sellTaxPortion - allocCost;
-          realized += realizedPortion;
-          sellMapping.pairs.push({ buySeq: lot.seq, buyDate: lot.date, buyPrice: lot.price, usedShares: use, allocCost, sellProceeds, sellFeePortion, sellTaxPortion, realizedPortion });
-          sellMapping.realizedForThisSell += realizedPortion;
-          lot.remain -= use;
-          need -= use;
-          if(lot.remain <= 0){
-            if(mode === 'FIFO') buyStack.shift(); else buyStack.pop();
-          }
+
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // 全局變數
+        window.brokersData = {};
+        window.recordsData = {};
+        let editingRecordId = null;
+        let editingBrokerId = null;
+
+        // Tab 切換
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        };
+
+        // 顯示提示訊息
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
         }
-        if(need > 0){
-          sellMapping.note = `賣出超過持有量 ${need} 股，超出部分未計入已實現損益`;
+
+        // ========== 券商管理 ==========
+        
+        // 載入券商列表
+        const brokersRef = ref(database, 'brokers');
+        onValue(brokersRef, (snapshot) => {
+            window.brokersData = snapshot.val() || {};
+            renderBrokersList();
+            updateBrokerSelect();
+        });
+
+        // 渲染券商列表
+        function renderBrokersList() {
+            const container = document.getElementById('brokersList');
+            container.innerHTML = '';
+            
+            Object.keys(window.brokersData).forEach(key => {
+                const broker = window.brokersData[key];
+                const div = document.createElement('div');
+                div.className = 'broker-item';
+                div.innerHTML = `
+                    <div class="broker-info">
+                        <div class="broker-name">${broker.name}</div>
+                        <div class="broker-fee">手續費率: ${broker.feeRate}%</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-edit" onclick="editBroker('${key}')">編輯</button>
+                        <button class="btn btn-danger" onclick="deleteBroker('${key}')">刪除</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
-        sellMapping.soldFee = sellFee;
-        sellMapping.soldTax = sellTax;
-        mappingRows.push(sellMapping);
-      }
-    } // end grp.list loop
 
-    // after processing group, build inventory
-    let sharesLeft = 0, totalCostLeft = 0;
-    buyStack.forEach(l=>{
-      sharesLeft += l.remain;
-      totalCostLeft += l.totalCostIncludesFees * (l.remain / l.sharesTotal);
-    });
-    const avgCost = sharesLeft ? (totalCostLeft / sharesLeft) : 0;
+        // 更新券商下拉選單
+        function updateBrokerSelect() {
+            const select = document.getElementById('brokerSelect');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">請選擇券商</option>';
+            
+            Object.keys(window.brokersData).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = window.brokersData[key].name;
+                select.appendChild(option);
+            });
+            
+            if (currentValue) select.value = currentValue;
+        }
 
-    perGroup.push({ brokerName: grp.brokerName, code: grp.code, name: (grp.list.find(x=>x.name && x.name.trim()) || {}).name || '', realizedPnl: realized, detail: mappingRows, shareDetailRows: buyStack.concat([]), sharesLeft, avgCost });
+        // 儲存券商
+        document.getElementById('brokerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const brokerData = {
+                name: document.getElementById('brokerName').value,
+                feeRate: parseFloat(document.getElementById('feeRate').value)
+            };
+            
+            try {
+                if (editingBrokerId) {
+                    await update(ref(database, `brokers/${editingBrokerId}`), brokerData);
+                    showAlert('brokerAlert', '券商更新成功！', 'success');
+                } else {
+                    await push(ref(database, 'brokers'), brokerData);
+                    showAlert('brokerAlert', '券商新增成功！', 'success');
+                }
+                
+                document.getElementById('brokerForm').reset();
+                cancelBrokerEdit();
+            } catch (error) {
+                showAlert('brokerAlert', '操作失敗：' + error.message, 'error');
+            }
+        });
 
-    // combined
-    if(!combinedMap[grp.code]) combinedMap[grp.code] = 0;
-    combinedMap[grp.code] += realized;
+        // 編輯券商
+        window.editBroker = function(brokerId) {
+            editingBrokerId = brokerId;
+            const broker = window.brokersData[brokerId];
+            
+            document.getElementById('brokerId').value = brokerId;
+            document.getElementById('brokerName').value = broker.name;
+            document.getElementById('feeRate').value = broker.feeRate;
+            document.getElementById('cancelBrokerBtn').style.display = 'inline-block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
-    inventory.push({ brokerName: grp.brokerName, code: grp.code, name: (grp.list.find(x=>x.name && x.name.trim()) || {}).name || '', sharesLeft, avgCost });
-  });
+        // 取消編輯券商
+        window.cancelBrokerEdit = function() {
+            editingBrokerId = null;
+            document.getElementById('brokerForm').reset();
+            document.getElementById('cancelBrokerBtn').style.display = 'none';
+        };
 
-  const combined = Object.keys(combinedMap).map(c => ({ code: c, realizedPnl: combinedMap[c] }));
+        // 刪除券商
+        window.deleteBroker = async function(brokerId) {
+            if (confirm('確定要刪除此券商嗎？')) {
+                try {
+                    await remove(ref(database, `brokers/${brokerId}`));
+                    showAlert('brokerAlert', '券商刪除成功！', 'success');
+                } catch (error) {
+                    showAlert('brokerAlert', '刪除失敗：' + error.message, 'error');
+                }
+            }
+        };
 
-  return { perGroup, combined, inventory };
-}
+        // ========== 交易記錄管理 ==========
+        
+        // 載入交易記錄
+        const recordsRef = ref(database, 'records');
+        onValue(recordsRef, (snapshot) => {
+            window.recordsData = snapshot.val() || {};
+            renderRecordsTable();
+        });
 
-/* ---------- Render analysis & mapping ---------- */
-function renderAnalysisDisplay(res, mode){
-  const container = document.getElementById('analysisContainer');
-  container.innerHTML = '';
-  if(!res || !res.perGroup || res.perGroup.length===0){ container.innerHTML = '<div class="small">無符合條件的資料</div>'; return; }
+        // 自動計算總成本
+        ['brokerSelect', 'price', 'quantity'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculateTotalCost);
+        });
 
-  res.perGroup.forEach(group=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    const title = document.createElement('h3');
-    title.textContent = `券商：${group.brokerName} / 股票：${group.code} ${group.name?('/ '+group.name):''}`;
-    card.appendChild(title);
+        function calculateTotalCost() {
+            const brokerId = document.getElementById('brokerSelect').value;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+            
+            if (brokerId && window.brokersData[brokerId]) {
+                const feeRate = window.brokersData[brokerId].feeRate / 100;
+                const subtotal = price * quantity * 1000; // 1張 = 1000股
+                const fee = subtotal * feeRate;
+                const total = subtotal + fee;
+                
+                document.getElementById('totalCost').value = total.toFixed(2);
+            }
+        }
 
-    // mapping table: each sell mapping row
-    const tbl = document.createElement('table'); tbl.className='table';
-    tbl.innerHTML = `<thead><tr><th>賣出序號</th><th>賣出日期</th><th>賣出張數(股)</th><th>賣價</th><th>對應買進序號(買價 → 使用股數)</th><th>已實現損益</th></tr></thead><tbody></tbody>`;
-    const tb = tbl.querySelector('tbody');
+        // 渲染交易記錄表格
+        function renderRecordsTable() {
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+            
+            const sortedRecords = Object.entries(window.recordsData).sort((a, b) => {
+                return new Date(b[1].tradeDate) - new Date(a[1].tradeDate);
+            });
+            
+            sortedRecords.forEach(([key, record]) => {
+                const broker = window.brokersData[record.brokerId];
+                const brokerName = broker ? broker.name : '未知券商';
+                const feeRate = broker ? broker.feeRate : 0;
+                const subtotal = record.price * record.quantity * 1000;
+                const fee = subtotal * (feeRate / 100);
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${record.tradeDate}</td>
+                    <td>${brokerName}</td>
+                    <td>${record.stockCode} ${record.stockName}</td>
+                    <td><span style="color: ${record.tradeType === 'BUY' ? '#10b981' : '#ef4444'}">${record.tradeType === 'BUY' ? '買入' : '賣出'}</span></td>
+                    <td>$${record.price.toLocaleString()}</td>
+                    <td>${record.quantity}</td>
+                    <td>$${fee.toFixed(0).toLocaleString()}</td>
+                    <td>$${record.totalCost.toLocaleString()}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-edit" onclick="editRecord('${key}')">編輯</button>
+                            <button class="btn btn-danger" onclick="deleteRecord('${key}')">刪除</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
 
-    let groupTotal = 0;
-    group.detail.forEach(sell=>{
-      const row = document.createElement('tr');
-      // compute displayed realized
-      const realized = sell.realizedForThisSell || 0;
-      groupTotal += realized;
-      const realizedText = fmtInt(realized);
-      const realizedClass = realized>=0 ? 'profit' : 'loss';
-      // build mapping text list
-      const mapTexts = sell.pairs.map(p=>`#${p.buySeq} (${fmtNum2(p.buyPrice)} → ${fmtInt(p.usedShares)}股)`).join('<br>');
-      row.innerHTML = `<td>${sell.sellSeq}</td><td>${sell.sellDate}</td><td class="right">${fmtInt(sell.sellShares)}</td><td class="right">${fmtNum2(sell.sellPrice)}</td>
-        <td style="text-align:left">${mapTexts}</td>
-        <td class="${realizedClass}">${realizedText}</td>`;
-      tb.appendChild(row);
-    });
+        // 設定今天為預設日期
+        document.getElementById('tradeDate').valueAsDate = new Date();
 
-    // summary row
-    const sumRow = document.createElement('div');
-    sumRow.innerHTML = `<div style="margin-top:8px">此組合已實現損益： <span class="${groupTotal>=0?'profit':'loss'}">${fmtInt(groupTotal)}</span></div>`;
-    card.appendChild(tbl);
-    card.appendChild(sumRow);
+        // 儲存交易記錄
+        document.getElementById('recordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const recordData = {
+                brokerId: document.getElementById('brokerSelect').value,
+                stockCode: document.getElementById('stockCode').value,
+                stockName: document.getElementById('stockName').value,
+                tradeType: document.getElementById('tradeType').value,
+                price: parseFloat(document.getElementById('price').value),
+                quantity: parseFloat(document.getElementById('quantity').value),
+                tradeDate: document.getElementById('tradeDate').value,
+                totalCost: parseFloat(document.getElementById('totalCost').value)
+            };
+            
+            try {
+                if (editingRecordId) {
+                    await update(ref(database, `records/${editingRecordId}`), recordData);
+                    showAlert('recordAlert', '記錄更新成功！', 'success');
+                } else {
+                    await push(ref(database, 'records'), recordData);
+                    showAlert('recordAlert', '記錄新增成功！', 'success');
+                }
+                
+                document.getElementById('recordForm').reset();
+                document.getElementById('tradeDate').valueAsDate = new Date();
+                cancelEdit();
+            } catch (error) {
+                showAlert('recordAlert', '操作失敗：' + error.message, 'error');
+            }
+        });
 
-    // show remaining buy lots (inventory for this group)
-    const invTbl = document.createElement('table'); invTbl.className='table'; invTbl.style.marginTop='10px';
-    invTbl.innerHTML = `<thead><tr><th>剩餘買進序號</th><th>買進日期</th><th>買價</th><th>剩餘股數</th><th>該lot 總成本(含手續)</th></tr></thead><tbody></tbody>`;
-    const invTb = invTbl.querySelector('tbody');
-    (group.shareDetailRows || []).forEach(l=>{
-      const r = document.createElement('tr');
-      r.innerHTML = `<td>${l.seq}</td><td>${l.date}</td><td class="right">${fmtNum2(l.price)}</td><td class="right">${fmtInt(l.remain)}</td><td class="right">${fmtInt(l.totalCostIncludesFees * (l.remain / l.sharesTotal))}</td>`;
-      invTb.appendChild(r);
-    });
-    card.appendChild(invTbl);
+        // 編輯記錄
+        window.editRecord = function(recordId) {
+            editingRecordId = recordId;
+            const record = window.recordsData[recordId];
+            
+            document.getElementById('recordId').value = recordId;
+            document.getElementById('brokerSelect').value = record.brokerId;
+            document.getElementById('stockCode').value = record.stockCode;
+            document.getElementById('stockName').value = record.stockName;
+            document.getElementById('tradeType').value = record.tradeType;
+            document.getElementById('price').value = record.price;
+            document.getElementById('quantity').value = record.quantity;
+            document.getElementById('tradeDate').value = record.tradeDate;
+            document.getElementById('totalCost').value = record.totalCost;
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
-    container.appendChild(card);
-  });
+        // 取消編輯
+        window.cancelEdit = function() {
+            editingRecordId = null;
+            document.getElementById('recordForm').reset();
+            document.getElementById('tradeDate').valueAsDate = new Date();
+            document.getElementById('cancelBtn').style.display = 'none';
+        };
 
-  // combined summary
-  const combCard = document.createElement('div'); combCard.className='card';
-  let combHtml = '<h3>合併損益總表</h3><table class="table"><thead><tr><th>股票代碼</th><th>合併已實現損益</th></tr></thead><tbody>';
-  res.combined.forEach(c=>{
-    combHtml += `<tr><td>${c.code}</td><td class="${c.realizedPnl>=0?'profit':'loss'}">${fmtInt(c.realizedPnl)}</td></tr>`;
-  });
-  const total = res.combined.reduce((s,c)=>s + Number(c.realizedPnl||0),0);
-  combHtml += `<tr><td>合計</td><td class="${total>=0?'profit':'loss'}">${fmtInt(total)}</td></tr>`;
-  combHtml += '</tbody></table>';
-  combCard.innerHTML = combHtml;
-  container.appendChild(combCard);
-}
-
-/* ---------- Inventory table with market price input ---------- */
-function renderInventoryTable(inventoryResults){
-  const container = document.getElementById('inventoryContainer');
-  container.innerHTML = '';
-  if(!inventoryResults || inventoryResults.length===0){ container.innerHTML = '<div class="small">無庫存</div>'; return; }
-  let html = `<table class="inv-table"><thead><tr>
-    <th>券商</th><th>股票代碼</th><th>股票名稱</th><th>庫存股數</th><th>庫存均價(每股)</th><th>今日市價(每股)</th><th>未實現損益</th>
-  </tr></thead><tbody>`;
-  inventoryResults.forEach((i, idx)=>{
-    html += `<tr>
-      <td>${escapeHtml(i.brokerName)}</td>
-      <td>${escapeHtml(i.code)}</td>
-      <td>${escapeHtml(i.name||'')}</td>
-      <td class="right">${fmtInt(i.sharesLeft)}</td>
-      <td class="right">${fmtNum2(i.avgCost)}</td>
-      <td><input type="number" id="mkt_${idx}" step="0.01" oninput="updateUnrealized(${idx})"></td>
-      <td id="unr_${idx}" class="right">-</td>
-    </tr>`;
-  });
-  html += `</tbody></table>`;
-  container.innerHTML = html;
-  // store current inventory in state.lastCalc for lookup
-  state.lastCalc.inventory = inventoryResults;
-}
-
-/* update unrealized when user types market price */
-function updateUnrealized(idx){
-  const inv = state.lastCalc.inventory[idx];
-  if(!inv) return;
-  const input = document.getElementById(`mkt_${idx}`);
-  const out = document.getElementById(`unr_${idx}`);
-  const price = Number(input.value) || 0;
-  const pnl = (price - inv.avgCost) * inv.sharesLeft;
-  out.textContent = fmtInt(pnl);
-  out.className = pnl>=0 ? 'profit' : 'loss';
-}
-
-/* ---------- Render lastCalc if exists ---------- */
-function renderLastCalc(){
-  if(state.lastCalc && state.lastCalc.perGroup && state.lastCalc.perGroup.length>0){
-    renderAnalysisDisplay(state.lastCalc, 'FIFO');
-    renderInventoryTable(state.lastCalc.inventory);
-  }
-}
-
-/* ---------- Main init ---------- */
-(function init(){
-  loadState();
-  if(state.brokers.length === 0) state.brokers.push({ name:'Default Broker', discountPercent: 0 });
-  saveState(); renderAll();
-})();
-
-</script>
+        // 刪除記錄
+        window.deleteRecord = async function(recordId) {
+            if (confirm('確定要刪除此記錄嗎？')) {
+                try {
+                    await remove(ref(database, `records/${recordId}`));
+                    showAlert('recordAlert', '記錄刪除成功！', 'success');
+                } catch (error) {
+                    showAlert('recordAlert', '刪除失敗：' + error.message, 'error');
+                }
+            }
+        };
+    </script>
 </body>
 </html>
